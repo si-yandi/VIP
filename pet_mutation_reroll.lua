@@ -10,14 +10,17 @@ local   HttpService = game:GetService("HttpService")
 local   MAX_VERSION = 1681
 local   mutation_wanted = "Rainbow"
 local   PLACE_ID = game.PlaceId
-local   JOB_ID = game.JobId
 local   cam = Workspace.CurrentCamera
 local   remote = ReplicatedStorage.GameEvents.PetMutationMachineService_RE
 local   webhook_url = "https://discord.com/api/webhooks/..." -- replace this
 
 local function force_rejoin()
-      LocalPlayer:Kick("Say Eli Gay⚠️")
-      TeleportService:TeleportToPlaceInstance(PLACE_ID, JOB_ID, LocalPlayer)
+      local success = pcall(function()
+            TeleportService:Teleport(PLACE_ID, LocalPlayer)
+      end)
+      if not success then
+            LocalPlayer:Kick("Unable to rejoin this server")
+      end
 end
 
 local screenGui = Instance.new("ScreenGui")
@@ -47,8 +50,9 @@ local function wait_for_load()
       while not LocalPlayer:GetAttribute("Setup_Finished") do task.wait() end
       ReplicatedStorage.GameEvents.Finish_Loading:FireServer()
       ReplicatedStorage.GameEvents.LoadScreenEvent:FireServer(LocalPlayer)
-      while not LocalPlayer:GetAttribute("Loading_Screen_Finished") do task.wait()
-end
+      while not LocalPlayer:GetAttribute("Loading_Screen_Finished") do
+            task.wait()
+      end
       task.wait(1)
 end
 
@@ -57,12 +61,10 @@ if not LocalPlayer:GetAttribute("Loading_Screen_Finished") then
 end
 
 local function send_hook(mutation)
-      if not webhook_url or webhook_url:find("1099202033824829440") then return end
+      if not webhook_url or webhook_url == "" or webhook_url:find("...", 1, true) then return end
       local data = {
             username = "toes hub",
-            avatar_url =
-"https://cdn.discordapp.com/attachments/1390989755327578163/1402302319269253251/74f
-64afff9748d2c64d01b021ffcf288.jpg",
+            avatar_url = "https://cdn.discordapp.com/attachments/1390989755327578163/1402302319269253251/74f64afff9748d2c64d01b021ffcf288.jpg",
             embeds = {{
                   title = "**🐾 Mutation Rolled 🐾**",
                   description = string.format("🎨 **Mutation:** `%s`", mutation),
@@ -70,9 +72,7 @@ local function send_hook(mutation)
                   color = 0x9b59b6,
                   footer = {
                         text = "Auto Reroll",
-                        icon_url =
-"https://cdn.discordapp.com/attachments/1390989755327578163/1402302319269253251/74f
-64afff9748d2c64d01b021ffcf288.jpg"
+                        icon_url = "https://cdn.discordapp.com/attachments/1390989755327578163/1402302319269253251/74f64afff9748d2c64d01b021ffcf288.jpg"
                   }
             }}
       }
